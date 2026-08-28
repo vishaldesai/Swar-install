@@ -29,8 +29,8 @@ overlay while you are still speaking.
 
 | File | Bytes | SHA-256 |
 |---|---:|---|
-| `Swar_0.1.0_x64-setup.exe` | 10,606,339 | `b033a1440393a7fb69196fb287257b2a38a197cb6eaab3f0d62f3b9251d1a5b4` |
-| `Swar_0.1.0_x64_en-US.msi` | 14,913,536 | `7ae113d721d811b4849d41fcc04f61a35aca8200b6a6e0d51305291dc63f4fac` |
+| `Swar_0.1.0_x64-setup.exe` | 10,605,906 | `60ac22a56b82c0d9e61431d08ab347c720a3548b3181ceac2b5bf1a252869108` |
+| `Swar_0.1.0_x64_en-US.msi` | 14,913,536 | `f74b72185e6ac140c8517fa29a173f9f694d2fb3ec7fd71afce36667cbc331bd` |
 
 **Known limitations**
 

@@ -1,3 +1,5 @@
-# Nothing built here. These are the two things that turn up anyway.
+# Release artifacts. They live on the release page, not in git history —
+# the SHA-256 in CHANGELOG.md is the copy that git is responsible for.
 *.exe
 *.msi
+SHA256SUMS.txt
