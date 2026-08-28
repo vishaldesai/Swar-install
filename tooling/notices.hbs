@@ -1,0 +1,20 @@
+{{#each overview}}
+- **{{{name}}}** (`{{{id}}}`) — {{count}} components
+{{/each}}
+
+---
+
+{{#each licenses}}
+### {{{name}}} — `{{{id}}}`
+
+{{#each used_by}}`{{{crate.name}}}` {{{crate.version}}}{{#unless @last}} · {{/unless}}{{/each}}
+
+<details><summary>Licence text</summary>
+
+```text
+{{{text}}}
+```
+
+</details>
+
+{{/each}}

@@ -1,0 +1,85 @@
+name: Bug report
+description: Swar is installed, but something is wrong with it.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste transcripts, dictionary entries, or anything you dictated. If a
+        specific phrase is the bug, invent one that reproduces it.
+
+        Found a security vulnerability? Do not file it here — see
+        [SECURITY.md](https://github.com/vishaldesai/Swar-install/blob/main/SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: Swar version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows build
+      placeholder: "Windows 11 Pro 23H2, 10.0.22631"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What area
+      options:
+        - "Dictation — the key, the hook, or nothing happening"
+        - "Recognition quality — wrong words"
+        - "Text injection — text goes to the wrong place, or is mangled"
+        - "The overlay"
+        - "The Hub — history, dictionary, snippets, insights"
+        - "Settings"
+        - "Speech models — downloading or switching"
+        - "Audio devices"
+        - "Something else"
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Speech model
+      description: Settings → Model. The default is nemotron-3.5-asr-streaming-0.6b.
+      placeholder: "nemotron-3.5-asr-streaming-0.6b"
+
+  - type: input
+    id: target
+    attributes:
+      label: Which application were you dictating into
+      description: Only if the bug is about text landing wrong.
+      placeholder: "Notepad, VS Code, Chrome…"
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Hold Right Ctrl in …
+        2. Say …
+        3. Release
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected, and actual
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt
+      description: From `%APPDATA%\Swar\logs\`. Safe to attach — they contain no transcript text or audio.
+      render: text

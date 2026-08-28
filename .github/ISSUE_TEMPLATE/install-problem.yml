@@ -1,0 +1,81 @@
+name: Install problem
+description: The installer failed, or Swar will not start after installing.
+title: "[install] "
+labels: ["install"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a problem getting Swar onto the machine. If it installed and runs but
+        misbehaves, use the bug report instead.
+
+        Do not paste transcripts, dictionary entries, or anything you dictated.
+
+  - type: input
+    id: version
+    attributes:
+      label: Swar version
+      description: From the release you downloaded, e.g. 0.1.0.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installer
+    attributes:
+      label: Which installer
+      options:
+        - "Swar_x64-setup.exe (NSIS, per-user)"
+        - "Swar_x64_en-US.msi (MSI, per-machine)"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows build
+      description: "Run `winver`, or `[System.Environment]::OSVersion.Version` in PowerShell."
+      placeholder: "Windows 11 Pro 23H2, 10.0.22631"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where it went wrong
+      options:
+        - "Downloading"
+        - "The checksum did not match"
+        - "Running the installer"
+        - "First launch — the app does not appear"
+        - "First launch — the model download failed"
+        - "Uninstalling"
+        - "Somewhere else"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got. Exact error text and dialog titles help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt
+      description: |
+        From `%APPDATA%\Swar\logs\`. These record paths, counts and durations — never
+        transcript text or audio — so they are safe to attach. Skip this if the app
+        never started.
+      render: text
+
+  - type: checkboxes
+    id: checksum
+    attributes:
+      label: Before filing
+      options:
+        - label: I verified the SHA-256 against the release notes.
+        - label: I searched existing issues.

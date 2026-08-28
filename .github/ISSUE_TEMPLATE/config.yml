@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, ideas, and "does it do X"
+    url: https://github.com/vishaldesai/Swar-install/discussions
+    about: Anything that is not a defect report.
+  - name: Security vulnerability
+    url: https://github.com/vishaldesai/Swar-install/security/advisories/new
+    about: Report privately. Do not open a public issue.
+  - name: Source code, building from source, and code-level issues
+    url: https://github.com/vishaldesai/Swar
+    about: This repository only carries installers and release notes.
