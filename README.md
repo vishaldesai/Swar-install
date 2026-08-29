@@ -19,8 +19,8 @@ Windows 11, x64. There is no macOS or Linux build yet.
 
 | File | For | Installs to |
 |---|---|---|
-| [`Swar_0.1.0_x64-setup.exe`](https://github.com/vishaldesai/Swar-install/releases/download/v0.1.0/Swar_0.1.0_x64-setup.exe) | **One person. Start here.** | `%LOCALAPPDATA%\Programs\Swar`, no admin rights |
-| [`Swar_0.1.0_x64_en-US.msi`](https://github.com/vishaldesai/Swar-install/releases/download/v0.1.0/Swar_0.1.0_x64_en-US.msi) | A fleet — `msiexec`, Group Policy, Intune | `Program Files`, asks for elevation |
+| [`Swar-x64-setup.exe`](https://github.com/vishaldesai/Swar-install/releases/latest/download/Swar-x64-setup.exe) | **One person. Start here.** | `%LOCALAPPDATA%\Programs\Swar`, no admin rights |
+| [`Swar-x64.msi`](https://github.com/vishaldesai/Swar-install/releases/latest/download/Swar-x64.msi) | A fleet — `msiexec`, Group Policy, Intune | `Program Files`, asks for elevation |
 
 They install the same application. They disagree about *where*, and *with whose
 permission*. Take the `.exe` unless someone has told you to take the `.msi`.
@@ -31,13 +31,20 @@ The installers are unsigned, so the checksum is the only thing standing between 
 a file that is not the one published here. It takes ten seconds.
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\Swar_0.1.0_x64-setup.exe
+Get-FileHash -Algorithm SHA256 .\Swar-x64-setup.exe
 ```
 
 Compare against the entry in [CHANGELOG.md](CHANGELOG.md) and the `SHA256SUMS.txt`
 attached to the release. Those are two separate surfaces on purpose: the changelog is in
 git history, the release asset is not, and agreeing with both is a stronger statement
 than agreeing with either.
+
+Those two links always serve the newest release, so the file that lands is named
+`Swar-x64-setup.exe`, while both checksum surfaces name it with the version in it —
+`Swar_<version>_x64-setup.exe`. Same bytes, two names: compare the hash, not the filename.
+The versioned copy is on the
+[release page](https://github.com/vishaldesai/Swar-install/releases/latest) if you would
+rather download that one.
 
 ## Install
 

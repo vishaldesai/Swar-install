@@ -1,0 +1,132 @@
+name: Release pointers
+
+# Gives every release a set of filenames that never change, so this repository's README and
+# the website can link once and stay correct. Runs on ubuntu-latest and uses only the
+# preinstalled gh and jq — no Windows runner, no Rust toolchain, no third-party actions.
+# The contract this publishes is documented in RELEASING.md under "Stable URLs".
+
+on:
+  release:
+    types: [published, released]   # `released` also covers promoting a prerelease
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to regenerate pointers for, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  pointers:
+    # The workflow_dispatch clause has to come first: github.event.release is null on a
+    # manual run, and `null == false` evaluates true in an Actions expression.
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash   # naming it explicitly gets -eo pipefail; the implicit default omits pipefail
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TAG: ${{ inputs.tag || github.event.release.tag_name }}
+
+    steps:
+      - name: Download the assets that were actually published
+        # The underscore in these patterns is load-bearing. It matches the versioned
+        # filenames and not the hyphenated aliases this workflow creates, so a re-run
+        # never makes a copy of a copy.
+        run: |
+          mkdir dist && cd dist
+          gh release download "$TAG" --repo "$REPO" \
+            --pattern 'Swar_*_x64-setup.exe' \
+            --pattern 'Swar_*_x64_en-US.msi' \
+            --pattern 'SHA256SUMS.txt'
+          ls -l
+
+      - name: Verify the bytes against the published SHA256SUMS.txt
+        # Fail closed. Tauri, NSIS and WiX are not byte-reproducible, so rebuilding after
+        # publishing silently invalidates the checksums — that is what commit 76880c6
+        # records. Nothing is copied to a stable name until the bytes match what the
+        # release claims they are. This verifies SHA256SUMS.txt; it never rewrites it.
+        run: |
+          cd dist
+          # Step 2 of RELEASING.md writes that file with PowerShell's Set-Content, which
+          # emits CRLF or a BOM depending on which PowerShell cut the release. coreutils
+          # rejects both, and the CRLF failure reads like a missing asset rather than an
+          # encoding problem. Normalise a copy — the asset on the release is left as
+          # published, because it is the artifact the maintainer signed off on.
+          sed -e '1s/^\xEF\xBB\xBF//' -e 's/\r$//' SHA256SUMS.txt > SHA256SUMS.check
+          if [ "$(grep -cE '^[0-9a-fA-F]{64} ' SHA256SUMS.check)" -lt 2 ]; then
+            echo "::error::SHA256SUMS.txt yielded fewer than two checksum lines. Wrong encoding? UTF-16 cannot be read here."
+            exit 1
+          fi
+          sha256sum -c SHA256SUMS.check
+
+      - name: Build the aliases and latest.json
+        run: |
+          cd dist
+          version="${TAG#v}"
+          exe="Swar_${version}_x64-setup.exe"
+          msi="Swar_${version}_x64_en-US.msi"
+
+          for f in "$exe" "$msi"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::tag $TAG implies $f, which is not attached to the release"
+              exit 1
+            fi
+          done
+
+          cp "$exe" Swar-x64-setup.exe
+          cp "$msi" Swar-x64.msi
+
+          base="https://github.com/$REPO/releases"
+          published=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq .publishedAt)
+
+          jq -n \
+            --arg version   "$version" \
+            --arg tag       "$TAG" \
+            --arg published "$published" \
+            --arg base      "$base" \
+            --arg exe       "$exe" \
+            --arg msi       "$msi" \
+            --argjson exeBytes "$(stat -c%s "$exe")" \
+            --argjson msiBytes "$(stat -c%s "$msi")" \
+            --arg exeSha "$(sha256sum "$exe" | cut -d' ' -f1)" \
+            --arg msiSha "$(sha256sum "$msi" | cut -d' ' -f1)" \
+            '{
+              schema: 1,
+              version: $version,
+              tag: $tag,
+              published: $published,
+              notes: "\($base)/tag/\($tag)",
+              platform: "windows-x86_64",
+              assets: {
+                exe: {
+                  name: $exe,
+                  bytes: $exeBytes,
+                  sha256: $exeSha,
+                  url: "\($base)/download/\($tag)/\($exe)",
+                  stable_url: "\($base)/latest/download/Swar-x64-setup.exe"
+                },
+                msi: {
+                  name: $msi,
+                  bytes: $msiBytes,
+                  sha256: $msiSha,
+                  url: "\($base)/download/\($tag)/\($msi)",
+                  stable_url: "\($base)/latest/download/Swar-x64.msi"
+                }
+              }
+            }' > latest.json
+
+          cat latest.json
+
+      - name: Publish the pointers
+        # --clobber makes a re-run idempotent. Uploading with GITHUB_TOKEN does not start
+        # another workflow run, so this cannot trigger itself.
+        run: |
+          cd dist
+          gh release upload "$TAG" --repo "$REPO" --clobber \
+            Swar-x64-setup.exe Swar-x64.msi latest.json
